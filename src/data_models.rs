@@ -1,4 +1,3 @@
-use crate::schema::*;
 use diesel::mysql::types::Datetime;
 use diesel::sql_types::Date;
 

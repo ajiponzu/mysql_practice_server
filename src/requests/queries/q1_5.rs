@@ -1,3 +1,19 @@
+#[allow(unused_imports)]
+use crate::data_models;
+
+use crate::mysql_connector::establish_connection;
+
+#[allow(unused_imports)]
+use crate::schema;
+
+use diesel::deserialize::QueryableByName;
+use diesel::prelude::*;
+
+#[allow(unused_imports)]
+use diesel::sql_types;
+
+type DB = diesel::mysql::Mysql;
+
 pub fn query(question: &u16) -> String {
   if question == &1 {
     query_1()
@@ -15,7 +31,35 @@ pub fn query(question: &u16) -> String {
 }
 
 fn query_1() -> String {
-  String::from("not implemented1.")
+  #[derive(Debug)]
+  struct Answer {
+    #[allow(dead_code)]
+    min_ranking: i32,
+    #[allow(dead_code)]
+    max_ranking: i32,
+  }
+
+  impl QueryableByName<DB> for Answer {
+    fn build<R: diesel::row::NamedRow<diesel::mysql::Mysql>>(
+      row: &R,
+    ) -> diesel::deserialize::Result<Self> {
+      Ok(Answer {
+        min_ranking: row.get("Min(ranking)")?,
+        max_ranking: row.get("Max(ranking)")?,
+      })
+    }
+  }
+
+  let connection = establish_connection();
+  let answers: Vec<Answer> = diesel::sql_query(
+    "
+    Select Min(ranking), Max(ranking)
+    from countries Group By group_name;
+    ",
+  )
+  .load(&connection)
+  .unwrap();
+  format!("{:?}", answers)
 }
 
 fn query_2() -> String {
