@@ -3,7 +3,7 @@ extern crate mysql_practice_server;
 use actix_web::{web, App, HttpServer};
 use mysql_practice_server::requests;
 
-#[actix_web::main]
+#[actix_rt::main]
 async fn main() -> std::io::Result<()> {
   HttpServer::new(|| {
     App::new()
